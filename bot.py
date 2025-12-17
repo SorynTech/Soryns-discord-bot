@@ -3,6 +3,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import datetime
+import requests
+
 
 # Set up intents
 intents = discord.Intents.default()
@@ -253,13 +255,50 @@ async def slash_userinfo(interaction: discord.Interaction, member: discord.Membe
     if roles:
         embed.add_field(name="Roles", value=", ".join(roles), inline=False)
 
-    await interaction.response.send_message(embed=embed)
-@bot.tree.command(name="speak", description="Speak as the Bot")
-async def slash_speak(interaction: discord.Interaction, text: str):
-    @commands.has_permissions(send_messages=True)
-    message_content=input("What do you want the Bot to say?")
-    message=message_content
-    discord.send.messgae
+    @bot.tree.command(name="speak", description="Make the bot send a message")
+    @app_commands.describe(text="The message you want the bot to send")
+    @app_commands.checks.has_permissions(send_messages=True)
+    async def slash_speak(interaction: discord.Interaction, text: str):
+        """Make the bot speak in the channel"""
+
+        # Send the message to the channel
+        await interaction.channel.send(text)
+
+        # Confirm to the user (only they can see this)
+        await interaction.response.send_message(f"✅ Message sent!", ephemeral=True)
+
+
+@bot.tree.command(name="gif", description="Search for a GIF")
+@app_commands.describe(query="What GIF to search for")
+async def slash_gif(interaction: discord.Interaction, query: str):
+    """Search for a GIF using Tenor API"""
+
+    # Defer the response since API calls take time
+    await interaction.response.defer()
+
+    # Tenor API (you'll need a free API key from https://tenor.com/gifapi)
+    TENOR_API_KEY = os.getenv('TENOR_API_KEY')  # Add this to your .env file
+
+    if not TENOR_API_KEY:
+        await interaction.followup.send("❌ Tenor API key not configured!")
+        return
+
+    # Search GIFs
+    url = f"https://tenor.googleapis.com/v2/search?q={query}&key={TENOR_API_KEY}&limit=1"
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.json()
+
+        if data['results']:
+            gif_url = data['results'][0]['media_formats']['gif']['url']
+            await interaction.followup.send(gif_url)
+        else:
+            await interaction.followup.send(f"❌ No GIFs found for '{query}'")
+    else:
+        await interaction.followup.send("❌ Failed to fetch GIF")
+
 
 
 # ==================== ERROR HANDLERS ====================
