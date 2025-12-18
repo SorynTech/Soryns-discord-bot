@@ -373,7 +373,8 @@ async def slash_weather(interaction: discord.Interaction, location: str):
 @app_commands.checks.has_permissions(embed_links=True)
 @app_commands.checks.has_permissions(administrator=True)
 async def slash_invite(interaction: discord.Interaction):
-    invite_link=os.getenv(URL)
+    invite_link=os.getenv('DISCORD_BOT_URL')
+
     await interaction.response.send_message(invite_link, ephemeral=True)
 
 
