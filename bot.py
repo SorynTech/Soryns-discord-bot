@@ -297,7 +297,7 @@ async def slash_gif(interaction: discord.Interaction, query: str):
     url = f"https://tenor.googleapis.com/v2/search?q={query}&key={tenor_api_key}&client_key=discord_bot&limit=10"
 
     try:
-        response = requests.get(url)
+        response = requests.get(url,timeout=10)
         data = response.json()
 
         if data['results']:
@@ -324,11 +324,15 @@ async def slash_weather(interaction: discord.Interaction, location: str):
     url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location}?unitGroup=metric&key={weather_api_key}&contentType=json"
 
     try:
-        response = requests.get(url)
+        response = requests.get(url,timeout=10)
 
         if response.status_code != 200:
             await interaction.response.send_message(f"❌ Location not found: {location}", ephemeral=True)
             return
+        if response.status_code == 500:
+            await interaction.response.send_message("Server Error", ephemeral=True)
+        elif response.status_code != 403:
+            await interaction.response.send_message("Accsess denied")
 
         data = response.json()
         current = data['currentConditions']
