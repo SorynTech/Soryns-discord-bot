@@ -369,8 +369,7 @@ async def slash_weather(interaction: discord.Interaction, location: str):
         await interaction.followup.send(f"❌ Error fetching weather: {str(e)}", ephemeral=True)
         print(f"Full error: {e}")
 
-@bot.tree.command(name="invite", description="Get invite link")
-@app_commands.describe("Get the Bots invite link")
+@bot.tree.command(name="invite", description="Get the bot invite link")
 @app_commands.checks.has_permissions(embed_links=True)
 @app_commands.checks.has_permissions(administrator=True)
 async def slash_invite(interaction: discord.Interaction):
