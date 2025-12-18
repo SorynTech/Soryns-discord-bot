@@ -312,6 +312,9 @@ async def slash_userbanner(interaction: discord.Interaction, member: discord.Mem
 @slash_ban.error
 @slash_unban.error
 @slash_mute.error
+@slash_userpicture.error
+@slash_userbanner.error
+@slash_speak.error
 async def permission_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     """Handle permission errors for moderation commands"""
     if isinstance(error, app_commands.MissingPermissions):
