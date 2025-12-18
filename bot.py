@@ -254,6 +254,8 @@ async def slash_userinfo(interaction: discord.Interaction, member: discord.Membe
     roles = [role.mention for role in member.roles[1:]]  # Skip @everyone
     if roles:
         embed.add_field(name="Roles", value=", ".join(roles), inline=False)
+        await interaction.response.send_message(embed=embed)
+
 
 @bot.tree.command(name="speak", description="Make the bot send a message")
 @app_commands.describe(text="The message you want the bot to send")
