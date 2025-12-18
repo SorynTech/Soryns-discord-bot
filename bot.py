@@ -297,7 +297,7 @@ async def slash_gif(interaction: discord.Interaction, query: str):
     url = f"https://tenor.googleapis.com/v2/search?q={query}&key={tenor_api_key}&client_key=discord_bot&limit=10"
 
     try:
-        response = requests.get(url)
+        response = requests.get(url,timeout=10)
         data = response.json()
 
         if data['results']:
@@ -308,6 +308,56 @@ async def slash_gif(interaction: discord.Interaction, query: str):
             await interaction.response.send_message(f"❌ No GIFs found for '{query}'", ephemeral=True)
     except Exception as e:
         await interaction.response.send_message(f"❌ Error fetching GIF: {str(e)}", ephemeral=True)
+
+
+@bot.tree.command(name="weather", description="Get current weather for a location")
+@app_commands.describe(location="The city or location to get weather for")
+@app_commands.checks.has_permissions(send_messages=True)
+@app_commands.checks.has_permissions(embed_links=True)
+async def slash_weather(interaction: discord.Interaction, location: str):
+    weather_api_key = os.getenv('WEATHER_API')
+
+    if not weather_api_key:
+        await interaction.response.send_message("❌ Weather API key not configured!", ephemeral=True)
+        return
+
+    url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location}?unitGroup=metric&key={weather_api_key}&contentType=json"
+
+    try:
+        response = requests.get(url,timeout=10)
+
+        if response.status_code != 200:
+            await interaction.response.send_message(f"❌ Location not found: {location}", ephemeral=True)
+            return
+        if response.status_code == 500:
+            await interaction.response.send_message("Server Error", ephemeral=True)
+        elif response.status_code != 403:
+            await interaction.response.send_message("Accsess denied")
+
+        data = response.json()
+        current = data['currentConditions']
+
+        embed = discord.Embed(
+            title=f"🌤️ Weather in {data['resolvedAddress']}",
+            color=discord.Color.blue()
+        )
+
+        embed.add_field(name="Temperature", value=f"{current['temp']}°C", inline=True)
+        embed.add_field(name="Feels Like", value=f"{current['feelslike']}°C", inline=True)
+        embed.add_field(name="Condition", value=current['conditions'], inline=True)
+        embed.add_field(name="Humidity", value=f"{current['humidity']}%", inline=True)
+        embed.add_field(name="Wind Speed", value=f"{current['windspeed']} km/h", inline=True)
+        embed.add_field(name="Wind Direction", value=f"{current['winddir']}°", inline=True)
+        embed.add_field(name="Visibility", value=f"{current['visibility']} km", inline=True)
+        embed.add_field(name="Pressure", value=f"{current['pressure']} mb", inline=True)
+
+        embed.set_footer(text=f"Last updated: {current['datetime']}")
+
+        await interaction.response.send_message(embed=embed)
+
+    except Exception as e:
+        await interaction.response.send_message(f"❌ Error fetching weather: {str(e)}", ephemeral=True)
+
 
 #---------------------------------------ERROR HANDLING------------------------------------------------
 @slash_kick.error
