@@ -42,6 +42,7 @@ load_env_file()
 TOKEN = os.getenv('DISCORD_TOKEN')
 CLIENT = os.getenv('DISCORD_CLIENT_ID')
 URL = os.getenv('DISCORD_BOT_URL')
+TENOR_API_KEY=os.getenv('TENOR_API_KEY')
 
 # Debug
 if TOKEN:
@@ -57,6 +58,10 @@ if URL:
     print(URL)
 else:
     print("URL not found")
+if TENOR_API_KEY:
+    print("TENOR Found")
+else:
+    print("TENOR not found")
 
 
 # ==================== EVENT HANDLERS ====================
@@ -307,8 +312,8 @@ async def slash_gif(interaction: discord.Interaction, query: str):
 @app_commands.checks.has_permissions(send_messages=True)
 async def slash_Dice(interaction: discord.Interaction, member: discord.Member, text: str):
     diceroll=r.randint(1,6)
-    message=diceroll.__str__()
-    await interaction.response.send_message(f"The dice number you rolled is {message} {member.mention}")
+    dicerollmsg=str(diceroll)
+    await interaction.response.send_message(f"The dice number you rolled is {dicerollmsg} {member.mention}")
 
 
 
