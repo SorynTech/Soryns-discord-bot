@@ -282,7 +282,7 @@ async def slash_Dice(interaction: discord.Interaction, member: discord.Member, t
 @bot.tree.command(name="userpicture", description="Get a User's Profile Picture")
 @app_commands.describe(member="The member to get picture of")
 @app_commands.checks.has_permissions(send_messages=True)
-@app_commands.checks.has_permissions(attach_files=True)
+@app_commands.checks.has_permissions(embed_links=True)
 async def slash_userpicture(interaction: discord.Interaction, member: discord.Member):
     picture = member.display_avatar.url
     await interaction.response.send_message(picture)
@@ -291,7 +291,7 @@ async def slash_userpicture(interaction: discord.Interaction, member: discord.Me
 @bot.tree.command(name="userbanner", description="Get a user's nitro banner")
 @app_commands.describe(member="The member to get nitro banner of")
 @app_commands.checks.has_permissions(send_messages=True)
-@app_commands.checks.has_permissions(attach_files=True)
+@app_commands.checks.has_permissions(embed_links=True)
 async def slash_userbanner(interaction: discord.Interaction, member: discord.Member):
     # Fetch the full user object to get banner data
     user = await bot.fetch_user(member.id)
