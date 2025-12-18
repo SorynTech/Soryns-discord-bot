@@ -329,10 +329,6 @@ async def slash_weather(interaction: discord.Interaction, location: str):
         if response.status_code != 200:
             await interaction.response.send_message(f"❌ Location not found: {location}", ephemeral=True)
             return
-        if response.status_code == 500:
-            await interaction.response.send_message("Server Error", ephemeral=True)
-        elif response.status_code != 403:
-            await interaction.response.send_message("Accsess denied")
 
         data = response.json()
         current = data['currentConditions']
