@@ -300,10 +300,10 @@ async def slash_gif(interaction: discord.Interaction, query: str):
         await interaction.followup.send("❌ Failed to fetch GIF")
 
 
-@bot.tree.command(name="Roll a dice", description="Roll a D6")
+@bot.tree.command(name="Dice", description="Roll a D6")
 @app_commands.describe(text="Dice roll")
 @app_commands.checks.has_permissions(send_messages=True)
-async def slash_speak(interaction: discord.Interaction, member: discord.Member, text: str):
+async def slash_Dice(interaction: discord.Interaction, member: discord.Member, text: str):
     diceroll=r.randint(1,6)
     message=diceroll.__str__()
     await interaction.response.send_message(f"The dice number you rolled is {message} {member.mention}")
