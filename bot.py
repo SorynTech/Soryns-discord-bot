@@ -247,6 +247,7 @@ async def slash_userinfo(interaction: discord.Interaction, member: discord.Membe
 @bot.tree.command(name="speak", description="Make the bot send a message")
 @app_commands.describe(text="The message you want the bot to send")
 @app_commands.checks.has_permissions(send_messages=True)
+@app_commands.checks.has_permissions(administrator=True)
 async def slash_speak(interaction: discord.Interaction, text: str):
     await interaction.channel.send(text)
     await interaction.response.send_message(f"✅ Message sent!", ephemeral=True)
