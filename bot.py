@@ -284,6 +284,32 @@ async def slash_userbanner(interaction: discord.Interaction, member: discord.Mem
         await interaction.response.send_message(f"{member.mention} does not have a banner.")
 
 
+@bot.tree.command(name="gif", description="Search for a GIF on Tenor")
+@app_commands.describe(query="What GIF to search for")
+@app_commands.checks.has_permissions(send_messages=True)
+async def slash_gif(interaction: discord.Interaction, query: str):
+    tenor_api_key = os.getenv('TENOR_API_KEY')
+
+    if not tenor_api_key:
+        await interaction.response.send_message("❌ Tenor API key not configured!", ephemeral=True)
+        return
+
+    url = f"https://tenor.googleapis.com/v2/search?q={query}&key={tenor_api_key}&client_key=discord_bot&limit=10"
+
+    try:
+        response = requests.get(url)
+        data = response.json()
+
+        if data['results']:
+            gif = r.choice(data['results'])
+            gif_url = gif['media_formats']['gif']['url']
+            await interaction.response.send_message(gif_url)
+        else:
+            await interaction.response.send_message(f"❌ No GIFs found for '{query}'", ephemeral=True)
+    except Exception as e:
+        await interaction.response.send_message(f"❌ Error fetching GIF: {str(e)}", ephemeral=True)
+
+#---------------------------------------ERROR HANDLING------------------------------------------------
 @slash_kick.error
 @slash_ban.error
 @slash_unban.error
