@@ -321,38 +321,53 @@ async def slash_weather(interaction: discord.Interaction, location: str):
         await interaction.response.send_message("❌ Weather API key not configured!", ephemeral=True)
         return
 
-    url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location}?unitGroup=metric&key={weather_api_key}&contentType=json"
+    await interaction.response.defer()
+
+    location_encoded = location.replace(" ", "%20")
+    url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location_encoded}?unitGroup=metric&include=current&key={weather_api_key}&contentType=json"
 
     try:
-        response = requests.get(url,timeout=10)
+        response = requests.get(url)
+
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.text[:200]}")
 
         if response.status_code != 200:
-            await interaction.response.send_message(f"❌ Location not found: {location}", ephemeral=True)
+            await interaction.followup.send(f"❌ Error: {response.status_code} - Could not find location: {location}",
+                                            ephemeral=True)
             return
 
         data = response.json()
+
+        if 'currentConditions' not in data:
+            await interaction.followup.send(f"❌ No current weather data available for: {location}", ephemeral=True)
+            return
+
         current = data['currentConditions']
 
         embed = discord.Embed(
             title=f"🌤️ Weather in {data['resolvedAddress']}",
-            color=discord.Color.blue()
+            color=discord.Color.blue(),
+            description=current.get('conditions', 'N/A')
         )
 
-        embed.add_field(name="Temperature", value=f"{current['temp']}°C", inline=True)
-        embed.add_field(name="Feels Like", value=f"{current['feelslike']}°C", inline=True)
-        embed.add_field(name="Condition", value=current['conditions'], inline=True)
-        embed.add_field(name="Humidity", value=f"{current['humidity']}%", inline=True)
-        embed.add_field(name="Wind Speed", value=f"{current['windspeed']} km/h", inline=True)
-        embed.add_field(name="Wind Direction", value=f"{current['winddir']}°", inline=True)
-        embed.add_field(name="Visibility", value=f"{current['visibility']} km", inline=True)
-        embed.add_field(name="Pressure", value=f"{current['pressure']} mb", inline=True)
+        embed.add_field(name="Temperature", value=f"{current.get('temp', 'N/A')}°C", inline=True)
+        embed.add_field(name="Feels Like", value=f"{current.get('feelslike', 'N/A')}°C", inline=True)
+        embed.add_field(name="Humidity", value=f"{current.get('humidity', 'N/A')}%", inline=True)
+        embed.add_field(name="Wind Speed", value=f"{current.get('windspeed', 'N/A')} km/h", inline=True)
+        embed.add_field(name="Visibility", value=f"{current.get('visibility', 'N/A')} km", inline=True)
+        embed.add_field(name="Pressure", value=f"{current.get('pressure', 'N/A')} mb", inline=True)
 
-        embed.set_footer(text=f"Last updated: {current['datetime']}")
+        if 'datetime' in current:
+            embed.set_footer(text=f"Last updated: {current['datetime']}")
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
+    except requests.exceptions.RequestException as e:
+        await interaction.followup.send(f"❌ Network error: {str(e)}", ephemeral=True)
     except Exception as e:
-        await interaction.response.send_message(f"❌ Error fetching weather: {str(e)}", ephemeral=True)
+        await interaction.followup.send(f"❌ Error fetching weather: {str(e)}", ephemeral=True)
+        print(f"Full error: {e}")
 
 
 #---------------------------------------ERROR HANDLING------------------------------------------------
