@@ -249,6 +249,7 @@ async def slash_userinfo(interaction: discord.Interaction, member: discord.Membe
 @app_commands.checks.has_permissions(send_messages=True)
 @app_commands.checks.has_permissions(administrator=True)
 async def slash_speak(interaction: discord.Interaction, text: str):
+    await interaction.response.send_message(f"✅ Message sent!", ephemeral=True)
     await interaction.channel.send(text)
 
 
