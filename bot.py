@@ -302,7 +302,7 @@ async def slash_gif(interaction: discord.Interaction, query: str):
         await interaction.followup.send("❌ Failed to fetch GIF")
 
 
-@bot.tree.command(name="dice", description="Roll a D6")
+@bot.tree.command(name="diceroller", description="Roll a D6")
 @app_commands.describe(text="Dice roll")
 @app_commands.checks.has_permissions(send_messages=True)
 async def slash_Dice(interaction: discord.Interaction, member: discord.Member, text: str):
