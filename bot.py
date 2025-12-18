@@ -1,10 +1,10 @@
 import os
 import discord
-from discord import app_commands
+from discord import app_commands, Member
 from discord.ext import commands
 import datetime
 import requests
-
+import random as r
 
 # Set up intents
 intents = discord.Intents.default()
@@ -255,10 +255,10 @@ async def slash_userinfo(interaction: discord.Interaction, member: discord.Membe
     if roles:
         embed.add_field(name="Roles", value=", ".join(roles), inline=False)
 
-    @bot.tree.command(name="speak", description="Make the bot send a message")
-    @app_commands.describe(text="The message you want the bot to send")
-    @app_commands.checks.has_permissions(send_messages=True)
-    async def slash_speak(interaction: discord.Interaction, text: str):
+@bot.tree.command(name="speak", description="Make the bot send a message")
+@app_commands.describe(text="The message you want the bot to send")
+@app_commands.checks.has_permissions(send_messages=True)
+async def slash_speak(interaction: discord.Interaction, text: str):
         """Make the bot speak in the channel"""
 
         # Send the message to the channel
@@ -298,6 +298,17 @@ async def slash_gif(interaction: discord.Interaction, query: str):
             await interaction.followup.send(f"❌ No GIFs found for '{query}'")
     else:
         await interaction.followup.send("❌ Failed to fetch GIF")
+
+
+@bot.tree.command(name="Roll a dice", description="Roll a D6")
+@app_commands.describe(text="Dice roll")
+@app_commands.checks.has_permissions(send_messages=True)
+async def slash_speak(interaction: discord.Interaction, member: discord.Member, text: str):
+    diceroll=r.randint(1,6)
+    message=diceroll.__str__()
+    await interaction.response.send_message(f"The dice number you rolled is {message} {member.mention}")
+
+
 
 
 
