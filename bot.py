@@ -373,7 +373,8 @@ async def slash_weather(interaction: discord.Interaction, location: str):
 @app_commands.checks.has_permissions(embed_links=True)
 @app_commands.checks.has_permissions(administrator=True)
 async def slash_invite(interaction: discord.Interaction):
-    invite_link=os.getenv(URL)
+    invite_link=os.getenv('DISCORD_BOT_URL')
+
     await interaction.response.send_message(invite_link, ephemeral=True)
 
 
@@ -386,6 +387,9 @@ async def slash_invite(interaction: discord.Interaction):
 @slash_userpicture.error
 @slash_userbanner.error
 @slash_speak.error
+@slash_weather.error
+@slash_gif.error
+@slash_invite.error
 async def permission_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, app_commands.MissingPermissions):
         await interaction.response.send_message(
